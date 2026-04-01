@@ -31,16 +31,16 @@ export function useKeyboard() {
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (isEditableTarget(e.target)) return
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') set('forward', true)
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') set('back', true)
+      if (e.code === 'KeyW' || e.code === 'ArrowUp') set('back', true)
+      if (e.code === 'KeyS' || e.code === 'ArrowDown') set('forward', true)
       if (e.code === 'KeyA' || e.code === 'ArrowLeft') set('left', true)
       if (e.code === 'KeyD' || e.code === 'ArrowRight') set('right', true)
       if (e.code === 'Space') set('jump', true)
     }
 
     const onKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') set('forward', false)
-      if (e.code === 'KeyS' || e.code === 'ArrowDown') set('back', false)
+      if (e.code === 'KeyW' || e.code === 'ArrowUp') set('back', false)
+      if (e.code === 'KeyS' || e.code === 'ArrowDown') set('forward', false)
       if (e.code === 'KeyA' || e.code === 'ArrowLeft') set('left', false)
       if (e.code === 'KeyD' || e.code === 'ArrowRight') set('right', false)
       if (e.code === 'Space') set('jump', false)

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Circle, CircleMarker, MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
-import L from 'leaflet'
+import { useMemo, useState } from 'react'
+import { Canvas } from '@react-three/fiber'
 import './App.css'
+import { AmmoScene } from './game/AmmoScene'
 import { useKeyboard } from './game/useKeyboard'
 
 type SourceKind = 'Google Maps' | 'OpenStreetMap' | 'Tabelog'
@@ -120,50 +120,42 @@ const itinerary: DayPlan[] = [
   },
 ]
 
-type PlayerLocation = { lat: number; lng: number }
-
-const VISIT_RADIUS_METERS = 120
-const MOVE_SPEED_METERS_PER_SECOND = 95
-
-const boyIcon = L.divIcon({
-  className: 'boy-map-icon',
-  html: '<div class="boy-dot">HG</div>',
-  iconSize: [34, 34],
-  iconAnchor: [17, 17],
-})
-
-function haversineMeters(a: PlayerLocation, b: PlayerLocation) {
-  const toRad = (deg: number) => (deg * Math.PI) / 180
-  const dLat = toRad(b.lat - a.lat)
-  const dLng = toRad(b.lng - a.lng)
-  const lat1 = toRad(a.lat)
-  const lat2 = toRad(b.lat)
-
-  const h =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
-
-  return 2 * 6371000 * Math.asin(Math.sqrt(h))
+type TokyoPoint = {
+  id: string
+  x: number
+  z: number
+  lat: number
+  lng: number
+  source: SourceKind
+  day: number
 }
 
-function FollowPlayerMap({ player }: { player: PlayerLocation }) {
-  const map = useMap()
-  useEffect(() => {
-    map.panTo([player.lat, player.lng], { animate: true, duration: 0.15 })
-  }, [map, player.lat, player.lng])
-  return null
+function projectToTokyoPlane(lat: number, lng: number): { x: number; z: number } {
+  const baseLat = 35.681236
+  const baseLng = 139.767125
+  const metersPerDegreeLat = 111_320
+  const metersPerDegreeLng = metersPerDegreeLat * Math.cos((baseLat * Math.PI) / 180)
+  const scale = 1 / 180
+  const x = (lng - baseLng) * metersPerDegreeLng * scale
+  const z = -((lat - baseLat) * metersPerDegreeLat * scale)
+  return { x, z }
 }
 
 function App() {
   const [dayIndex, setDayIndex] = useState(0)
   const [visited, setVisited] = useState<Set<string>>(() => new Set())
   const keys = useKeyboard()
-  const [player, setPlayer] = useState<PlayerLocation>({
-    lat: itinerary[0].restaurants[0].lat,
-    lng: itinerary[0].restaurants[0].lng,
-  })
 
-  const allRestaurants = useMemo(() => itinerary.flatMap((d) => d.restaurants), [])
+  const flatPoints = useMemo<TokyoPoint[]>(() => {
+    const pts: TokyoPoint[] = []
+    for (const day of itinerary) {
+      for (const r of day.restaurants) {
+        const { x, z } = projectToTokyoPlane(r.lat, r.lng)
+        pts.push({ id: r.id, x, z, lat: r.lat, lng: r.lng, source: r.source, day: day.day })
+      }
+    }
+    return pts
+  }, [])
 
   const today = itinerary[dayIndex]
   const daysVisited = dayIndex
@@ -175,37 +167,6 @@ function App() {
   const todayVisitedCount = today.restaurants.filter((r) => visited.has(r.id)).length
   const todayGoal = today.restaurants.length
   const canAdvance = todayVisitedCount >= todayGoal
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      const x = (keys.right ? 1 : 0) - (keys.left ? 1 : 0)
-      const y = (keys.forward ? 1 : 0) - (keys.back ? 1 : 0)
-      if (x === 0 && y === 0) return
-
-      const dt = 0.05
-      const meters = MOVE_SPEED_METERS_PER_SECOND * dt
-      const len = Math.hypot(x, y) || 1
-      const nx = x / len
-      const ny = y / len
-
-      setPlayer((prev) => {
-        const metersPerDegLat = 111_320
-        const metersPerDegLng = metersPerDegLat * Math.cos((prev.lat * Math.PI) / 180)
-        const nextLat = prev.lat + (ny * meters) / metersPerDegLat
-        const nextLng = prev.lng + (nx * meters) / Math.max(1, metersPerDegLng)
-        return { lat: nextLat, lng: nextLng }
-      })
-    }, 50)
-    return () => window.clearInterval(id)
-  }, [keys])
-
-  useEffect(() => {
-    for (const r of today.restaurants) {
-      if (visited.has(r.id)) continue
-      const dist = haversineMeters(player, { lat: r.lat, lng: r.lng })
-      if (dist <= VISIT_RADIUS_METERS) handleVisit(r.id)
-    }
-  }, [player, today.restaurants, visited])
 
   const handleVisit = (id: string) => {
     setVisited((prev) => {
@@ -224,60 +185,24 @@ function App() {
   const handleReset = () => {
     setDayIndex(0)
     setVisited(new Set())
-    setPlayer({
-      lat: itinerary[0].restaurants[0].lat,
-      lng: itinerary[0].restaurants[0].lng,
-    })
   }
 
   return (
     <div className="app-root">
       <section className="app-canvas">
-        <MapContainer center={[player.lat, player.lng]} zoom={13} className="tokyo-map">
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        <Canvas camera={{ position: [0, 12, 14], fov: 55 }}>
+          <color attach="background" args={['#020617']} />
+          <ambientLight intensity={0.4} />
+          <directionalLight position={[8, 16, 6]} intensity={1.4} />
+          <directionalLight position={[-6, 10, -8]} intensity={0.4} />
+          <AmmoScene
+            points={flatPoints}
+            currentDay={today.day}
+            visited={visited}
+            onVisit={handleVisit}
+            keys={keys}
           />
-          <FollowPlayerMap player={player} />
-
-          <Marker position={[player.lat, player.lng]} icon={boyIcon}>
-            <Popup>Hungry G (you)</Popup>
-          </Marker>
-
-          <Circle
-            center={[player.lat, player.lng]}
-            radius={VISIT_RADIUS_METERS}
-            pathOptions={{ color: '#38bdf8', fillColor: '#38bdf8', fillOpacity: 0.08 }}
-          />
-
-          {allRestaurants.map((r) => {
-            const isVisited = visited.has(r.id)
-            const isToday = today.restaurants.some((todayR) => todayR.id === r.id)
-            const color = isVisited ? '#22c55e' : isToday ? '#f97316' : '#6b7280'
-
-            return (
-              <CircleMarker
-                key={r.id}
-                center={[r.lat, r.lng]}
-                radius={8}
-                pathOptions={{
-                  color,
-                  weight: 2,
-                  fillColor: color,
-                  fillOpacity: 0.8,
-                }}
-              >
-                <Popup>
-                  <strong>{r.name}</strong>
-                  <br />
-                  {r.area}
-                  <br />
-                  Source: {r.source}
-                </Popup>
-              </CircleMarker>
-            )
-          })}
-        </MapContainer>
+        </Canvas>
       </section>
 
       <aside className="app-ui">
@@ -372,8 +297,8 @@ function App() {
         </div>
 
         <p className="footer-note">
-          Controls: WASD / Arrow keys move Hungry G on a real OpenStreetMap basemap of Tokyo.
-          Enter the blue circle near orange shops to visit them.
+          Controls: WASD / Arrow keys to move, Space to jump. Collide with today’s orange pins to
+          “visit” them.
         </p>
       </aside>
     </div>

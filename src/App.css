@@ -11,31 +11,6 @@
   position: relative;
 }
 
-.tokyo-map {
-  width: 100%;
-  height: 100vh;
-}
-
-.boy-map-icon {
-  background: transparent;
-  border: none;
-}
-
-.boy-dot {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #f97316, #facc15);
-  color: #111827;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
-  border: 2px solid #fff7ed;
-}
-
 .app-ui {
   flex: 1;
   max-width: 420px;
@@ -264,10 +239,6 @@
   }
 
   .app-canvas {
-    height: 320px;
-  }
-
-  .tokyo-map {
     height: 320px;
   }
 
