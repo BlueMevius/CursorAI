@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import './App.css'
+import { useGameAudio } from './audio/useGameAudio'
 import { AmmoScene } from './game/AmmoScene'
 import { useKeyboard } from './game/useKeyboard'
 
@@ -145,6 +146,7 @@ function App() {
   const [dayIndex, setDayIndex] = useState(0)
   const [visited, setVisited] = useState<Set<string>>(() => new Set())
   const keys = useKeyboard()
+  const { onStamp, onDayComplete, onJump, onFootstep, onUi } = useGameAudio()
 
   const flatPoints = useMemo<TokyoPoint[]>(() => {
     const pts: TokyoPoint[] = []
@@ -171,6 +173,7 @@ function App() {
   const handleVisit = (id: string) => {
     setVisited((prev) => {
       if (prev.has(id)) return prev
+      onStamp()
       const next = new Set(prev)
       next.add(id)
       return next
@@ -179,10 +182,12 @@ function App() {
 
   const handleNextDay = () => {
     if (!canAdvance) return
+    onDayComplete()
     setDayIndex((prev) => (prev + 1 < itinerary.length ? prev + 1 : prev))
   }
 
   const handleReset = () => {
+    onUi()
     setDayIndex(0)
     setVisited(new Set())
   }
@@ -201,6 +206,8 @@ function App() {
             visited={visited}
             onVisit={handleVisit}
             keys={keys}
+            onJump={onJump}
+            onFootstep={onFootstep}
           />
         </Canvas>
       </section>

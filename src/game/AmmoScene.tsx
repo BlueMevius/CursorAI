@@ -26,6 +26,8 @@ type Props = {
   visited: Set<string>
   onVisit: (id: string) => void
   keys: KeyState
+  onJump?: () => void
+  onFootstep?: () => void
 }
 
 const BASE_LAT = 35.681236
@@ -217,7 +219,7 @@ function BoyVisual({ position }: { position: THREE.Vector3 }) {
   )
 }
 
-export function AmmoScene({ points, currentDay, visited, onVisit, keys }: Props) {
+export function AmmoScene({ points, currentDay, visited, onVisit, keys, onJump, onFootstep }: Props) {
   const { camera } = useThree()
   const [ready, setReady] = useState(false)
   const [physicsReady, setPhysicsReady] = useState(false)
@@ -231,6 +233,8 @@ export function AmmoScene({ points, currentDay, visited, onVisit, keys }: Props)
   const smoothedCameraTarget = useRef(new THREE.Vector3(0, 1.0, 0))
   const smoothedCameraPos = useRef(new THREE.Vector3(0, 5.5, 7.5))
   const tmpPos = useMemo(() => ({ x: 0, y: 0, z: 0 }), [])
+  const jumpLatch = useRef(false)
+  const footstepLast = useRef(0)
   const tileZoom = 12
   const tiles = useMemo(() => buildTokyoTileDescriptors(tileZoom), [])
 
@@ -335,6 +339,11 @@ export function AmmoScene({ points, currentDay, visited, onVisit, keys }: Props)
       if (desiredMove.lengthSq() > 0) {
         desiredMove.normalize().multiplyScalar(18 * dt)
         playerPos.current.add(desiredMove)
+        const now = performance.now()
+        if (now - footstepLast.current > 280) {
+          footstepLast.current = now
+          onFootstep?.()
+        }
       }
 
       const followOffset = new THREE.Vector3(0, 32, 0.01)
@@ -363,7 +372,13 @@ export function AmmoScene({ points, currentDay, visited, onVisit, keys }: Props)
     playerBody.setLinearVelocity(desiredVel)
 
     if (keys.jump && Math.abs(yVel) < 0.05) {
-      playerBody.applyCentralImpulse(new Ammo.btVector3(0, 3.2, 0))
+      if (!jumpLatch.current) {
+        jumpLatch.current = true
+        onJump?.()
+        playerBody.applyCentralImpulse(new Ammo.btVector3(0, 3.2, 0))
+      }
+    } else if (!keys.jump) {
+      jumpLatch.current = false
     }
 
     pw.world.stepSimulation(step, 5)
@@ -390,6 +405,14 @@ export function AmmoScene({ points, currentDay, visited, onVisit, keys }: Props)
       1.6 + Math.sin(performance.now() * 0.004) * 0.12,
       playerPos.current.z,
     )
+
+    if (move.lengthSq() > 0 && Math.abs(yVel) < 0.12) {
+      const now = performance.now()
+      if (now - footstepLast.current > 280) {
+        footstepLast.current = now
+        onFootstep?.()
+      }
+    }
 
     // Detect contacts: player vs pins
     const dispatcher = pw.dispatcher

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Large local audio pack extracts (keep shipped copies in public/assets/audio/*.ogg)
+public/assets/audio/_downloads/
