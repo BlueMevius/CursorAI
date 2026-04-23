@@ -7,17 +7,21 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:godot": "node scripts/sync-godot-assets.mjs",
+    "godot:sync": "npm run sync:godot"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "ammojs-typed": "^1.0.6",
+    "howler": "^2.2.4",
     "leaflet": "^1.9.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "^5.0.0",
-    "three": "^0.183.2"
+    "three": "^0.183.2",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

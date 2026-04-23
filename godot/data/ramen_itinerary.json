@@ -1,0 +1,100 @@
+{
+  "days": [
+    {
+      "day": 1,
+      "restaurants": [
+        {
+          "id": "jiro-mita",
+          "name": "Ramen Jiro Mita Honten",
+          "area": "Mita / Tamachi",
+          "lat": 35.6478,
+          "lng": 139.7471,
+          "source": "Tabelog",
+          "ratingHint": "Featured on Tabelog Ramens TOKYO 100"
+        },
+        {
+          "id": "ichiran-nishi-shinjuku",
+          "name": "Ichiran Nishi-Shinjuku",
+          "area": "Nishi-Shinjuku",
+          "lat": 35.6945,
+          "lng": 139.6973,
+          "source": "Google Maps",
+          "ratingHint": "Solo-booth tonkotsu specialist"
+        },
+        {
+          "id": "tokyo-eki-ikaruga",
+          "name": "Tokyo Eki Ikaruga",
+          "area": "Tokyo Station",
+          "lat": 35.6813,
+          "lng": 139.7669,
+          "source": "Tabelog",
+          "ratingHint": "Popular stop in Tokyo Ramen Street"
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "restaurants": [
+        {
+          "id": "itoi-ramen-yokocho",
+          "name": "Itoi Tokyo Ramen Yokocho",
+          "area": "Tokyo Station",
+          "lat": 35.6816,
+          "lng": 139.7672,
+          "source": "Tabelog",
+          "ratingHint": "Shoyu ramen and tsukemen near Tokyo Station"
+        },
+        {
+          "id": "tsugaru-niboshi",
+          "name": "Tsugaru Niboshi Hirako-ya",
+          "area": "Tokyo Station",
+          "lat": 35.6817,
+          "lng": 139.7674,
+          "source": "Tabelog",
+          "ratingHint": "Niboshi (dried-fish) broth specialist"
+        },
+        {
+          "id": "ichiran-ueno",
+          "name": "Ichiran Atre Ueno",
+          "area": "Ueno",
+          "lat": 35.7111,
+          "lng": 139.7773,
+          "source": "Google Maps",
+          "ratingHint": "Atre Ueno branch of Ichiran"
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "restaurants": [
+        {
+          "id": "genraku-ginza",
+          "name": "Ramen Genraku Ginza",
+          "area": "Ginza",
+          "lat": 35.6695,
+          "lng": 139.7671,
+          "source": "OpenStreetMap",
+          "ratingHint": "Classic Tokyo-style shoyu ramen"
+        },
+        {
+          "id": "genraku-kuramae",
+          "name": "Ramen Genraku Kuramae",
+          "area": "Kuramae",
+          "lat": 35.704,
+          "lng": 139.7923,
+          "source": "OpenStreetMap",
+          "ratingHint": "Neighborhood favorite near Kuramae"
+        },
+        {
+          "id": "ebimaru",
+          "name": "Ebimaru Ramen",
+          "area": "Jimbocho / Nishikanda",
+          "lat": 35.6964,
+          "lng": 139.7569,
+          "source": "Google Maps",
+          "ratingHint": "Shrimp-forward ramen in Nishikanda"
+        }
+      ]
+    }
+  ]
+}
