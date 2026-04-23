@@ -82,6 +82,19 @@ npm run dev
 
 ---
 
+## Sound Effects and Music
+
+- Shared audio files live in `public/assets/audio` and are synced to `godot/assets/audio`.
+- Current audio set includes:
+  - `bgm_ambient.ogg` (background loop)
+  - `sfx_jump.ogg` (jump)
+  - `sfx_stamp.ogg` (ramen pickup)
+  - `sfx_day_complete.ogg` (damage/game-over cue)
+  - `sfx_ui.ogg` and `sfx_footstep.ogg` (available for UI/movement cues)
+- In gameplay, background music follows run/pause state, and SFX are triggered by jump, pickup, and damage events.
+
+---
+
 ## Current Notes
 
 - Godot HUD includes score/lives/tier, pause toggle, and game-over restart prompt.
