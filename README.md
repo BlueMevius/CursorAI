@@ -1,92 +1,89 @@
-## Hungry G
+# Hungry G
 
-This is the starter project for **Hungry G**, a 3D game built with **React**, **TypeScript**, **Three.js**, and **@react-three/fiber** using **Vite**.
+Hungry G is a ramen-themed endless runner available in two implementations:
 
-### Scripts
+- **Web version** in `src/` (React + TypeScript + Vite)
+- **Godot version** in `godot/` (GDScript + Godot 4 scenes)
 
-- **npm run dev**: Start the development server.
-- **npm run build**: Create a production build.
-- **npm run preview**: Preview the production build locally.
-- **npm run lint**: Run ESLint on the project.
+The current gameplay loop is:
 
-### Tech Stack
+- run automatically from left to right
+- jump with `Space` or left click
+- avoid fire obstacles and holes
+- collect ramen for bonus score
+- survive with limited lives
 
-- React + TypeScript
-- Vite
-- Three.js
-- @react-three/fiber
-- @react-three/drei
+---
 
-# React + TypeScript + Vite
+## Project Structure
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- `src/` - web game implementation
+- `godot/` - Godot game project
+- `public/` - shared web assets (source for sync)
+- `scripts/sync-godot-assets.mjs` - copies shared assets into Godot
+- `MIGRATION.md` - migration notes and parity plan
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech and Library Choices
 
-## React Compiler
+### Web Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19**: UI + game state orchestration in one component tree
+- **TypeScript**: safer refactors for gameplay constants and data structures
+- **Vite 8**: fast local dev and straightforward production build pipeline
+- **use-sound + Howler**: simple browser audio playback and looping control
+- **Three.js / @react-three/fiber / @react-three/drei**: originally used for 3D map gameplay and still part of dependencies
+- **Leaflet / react-leaflet**: map and tile-based exploration support in the web branch
+- **Ammo.js typed bindings**: physics support for the earlier 3D version
 
-## Expanding the ESLint configuration
+### Godot Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Godot 4.6 (GDScript)**: standalone game runtime with built-in scene/physics/audio systems
+- **Scene tree architecture** (`Main.tscn`, `Player.gd`, HUD nodes): clear separation of gameplay, UI, and audio nodes
+- **AudioStreamPlayer + bus layout** (`Master`, `Music`, `SFX`): game audio routing and control
+- **Imported local OGG assets** in `godot/assets/audio/`: same sound set used for BGM and SFX cues
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Why this setup
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Keep a **fast web iteration path** while building a **native Godot runtime**
+- Reuse local assets across both versions via sync tooling
+- Preserve gameplay parity while allowing Godot-specific UI/physics/audio improvements
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## Scripts
+
+From the repository root:
+
+- `npm run dev` - start web dev server
+- `npm run build` - build the web app
+- `npm run preview` - preview built web app
+- `npm run lint` - run ESLint
+- `npm run sync:godot` - copy shared assets to `godot/`
+- `npm run godot:sync` - alias for `sync:godot`
+
+---
+
+## Running the Game
+
+### Web
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Godot
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Open the project at `godot/project.godot` in Godot 4.x.
+2. If assets changed in `public/`, run `npm run sync:godot`.
+3. Reload the project in Godot so imported assets refresh.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## Current Notes
+
+- Godot HUD includes score/lives/tier, pause toggle, and game-over restart prompt.
+- Game-over restart is `R`.
+- Migration and parity details are tracked in `MIGRATION.md`.
