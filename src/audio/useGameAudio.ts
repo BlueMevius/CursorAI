@@ -8,7 +8,7 @@ const SFX_JUMP = '/assets/audio/sfx_jump.ogg'
 const SFX_STEP = '/assets/audio/sfx_footstep.ogg'
 const SFX_UI = '/assets/audio/sfx_ui.ogg'
 
-export function useGameAudio() {
+export function useGameAudio(isRunning: boolean) {
   const [playBgm, { stop: stopBgm }] = useSound(BGM, {
     loop: true,
     volume: 0.22,
@@ -22,11 +22,15 @@ export function useGameAudio() {
   const [playUi] = useSound(SFX_UI, { volume: 0.4 })
 
   useEffect(() => {
-    playBgm()
+    if (isRunning) {
+      playBgm()
+    } else {
+      stopBgm()
+    }
     return () => {
       stopBgm()
     }
-  }, [playBgm, stopBgm])
+  }, [isRunning, playBgm, stopBgm])
 
   const onStamp = useCallback(() => {
     playStamp()

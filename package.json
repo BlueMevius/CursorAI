@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:godot": "node scripts/sync-godot-assets.mjs",
+    "godot:sync": "npm run sync:godot"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
